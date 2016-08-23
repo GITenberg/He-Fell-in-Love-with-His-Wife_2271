@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: mzPldiUUiJR6+wqspgh/hudk241mueKf5Vg+NMLjzZ6rzQ8K/wEN9/HdJpTtQSJ6mxEPpHa4xRE45Z3Zw6rT9UohpEm/0I88Zpb3CSF6sTKspEaF2yRvRwK3ZWfFhxkl5RexhWMH25jYvFacGwULO2rovZpEeyfCMtx9V+5twnK4cy04mXF1QptqWwnFiUYPvzGNI/Zp4SjLYMv0ijInRfmZGc0kioDL3q/i2vPm6m6NOE7SbkVu2VqHnAasUMV3OceP20T5HNM7vVUv6BO0PnLLESWEBm/rtKgnnFsOV5ziM82W4teoDxq9pHuJMAdiMCIqHy+JGzBgpgkYiEkqrA2zG6MNKD8J6t9bCtTlTiYtDn20DGtCxyZgAegiy25AfdMfUZj5UmyyzraMwcLvF7tZIJpyJX0BCCxiv2IZVvfPxPwmPORs48w5acX5D8Osj5aHCXUs2l10soWl/i5D0MXsuW5e4KenKhEL7A70ZkSsXu9ueB2IxtOW1Mtk/4E64AmXVOislT+Tkc96BsvrM04hyuvZaQyNVtwYxrpz69D7kLfvuSveRL6kSmW/22py76v1FD/pRI/1Lo/7WK7WOg+E7O5CCt0HQkNoc+BQcJBwxaJ2V8BCqm1gz+Q+50uODm1B3dk1m1sDYYyTNCr7oVNhBTkIITBx2BxpP+LAbCk=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/He-Fell-in-Love-with-His-Wife_2271
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
